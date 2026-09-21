@@ -4,11 +4,11 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from applications.models import Application
-from candidates.models import CandidateProfile
-from common.permissions import IsAdmin
-from employers.models import EmployerProfile
-from jobs.models import Job
+from apps.applications.models import Application
+from apps.candidates.models import CandidateProfile
+from apps.common.permissions import IsAdmin
+from apps.employers.models import EmployerProfile
+from apps.jobs.models import Job
 from .admin_serializers import AdminApplicationSerializer, AdminCandidateSerializer, AdminEmployerSerializer, AdminJobSerializer, AdminUserSerializer
 
 User = get_user_model()

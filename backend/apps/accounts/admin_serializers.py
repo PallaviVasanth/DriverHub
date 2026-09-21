@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
-from applications.models import Application
-from candidates.models import CandidateProfile
-from employers.models import EmployerProfile
-from jobs.models import Job
+from apps.applications.models import Application
+from apps.candidates.models import CandidateProfile
+from apps.employers.models import EmployerProfile
+from apps.jobs.models import Job
 from .models import User
 
 

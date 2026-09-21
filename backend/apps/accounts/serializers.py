@@ -27,10 +27,10 @@ class RegisterSerializer(serializers.Serializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         if user.role == User.Role.CANDIDATE:
-            from candidates.models import CandidateProfile
+            from apps.candidates.models import CandidateProfile
             CandidateProfile.objects.create(user=user)
         elif user.role == User.Role.EMPLOYER:
-            from employers.models import EmployerProfile
+            from apps.employers.models import EmployerProfile
             EmployerProfile.objects.create(user=user)
         return user
 

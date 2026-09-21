@@ -4,5 +4,5 @@
   "private": true,
   "main": "expo-router/entry",
   "scripts": {"start": "expo start", "android": "expo start --android", "web": "expo start --web"},
-  "dependencies": {"@expo/vector-icons": "latest", "@react-native-async-storage/async-storage": "latest", "@react-navigation/native": "latest", "axios": "latest", "expo": "latest", "expo-router": "latest", "expo-secure-store": "latest", "react": "latest", "react-native": "latest", "react-native-safe-area-context": "latest", "react-native-screens": "latest"}
+  "dependencies": {"@expo/vector-icons": "latest", "@react-native-async-storage/async-storage": "latest", "@react-navigation/native": "latest", "axios": "latest", "expo": "latest", "expo-document-picker": "latest", "expo-image-picker": "latest", "expo-router": "latest", "expo-secure-store": "latest", "react": "latest", "react-native": "latest", "react-native-safe-area-context": "latest", "react-native-screens": "latest"}
 }

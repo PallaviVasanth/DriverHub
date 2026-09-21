@@ -3,12 +3,12 @@ from decimal import Decimal
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from accounts.models import User
-from applications.models import Application
-from candidates.models import CandidateProfile
-from employers.models import EmployerProfile
-from jobs.models import Job
-from notifications.models import Notification
+from apps.accounts.models import User
+from apps.applications.models import Application
+from apps.candidates.models import CandidateProfile
+from apps.employers.models import EmployerProfile
+from apps.jobs.models import Job
+from apps.notifications.models import Notification
 
 
 class Command(BaseCommand):

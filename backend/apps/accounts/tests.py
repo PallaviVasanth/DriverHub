@@ -2,8 +2,8 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from candidates.models import CandidateProfile
-from employers.models import EmployerProfile
+from apps.candidates.models import CandidateProfile
+from apps.employers.models import EmployerProfile
 
 User = get_user_model()
 
