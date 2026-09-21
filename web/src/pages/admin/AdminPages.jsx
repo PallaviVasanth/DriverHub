@@ -6,7 +6,29 @@ import { EmptyState, ErrorState, LoadingState } from '../../components/ui/Feedba
 import { adminService } from '../../services/platformService';
 import { getApiErrorMessage } from '../../utils/apiErrors';
 
-function useAdminList(loader) { const [state, setState] = useState({ data: null, error: '' }); const load = () => loader().then((data) => setState({ data, error: '' })).catch((e) => setState({ data: null, error: getApiErrorMessage(e) })); useEffect(load, []); return [state, load]; }
+function useAdminList(loader) {
+  const [state, setState] = useState({
+    data: null,
+    error: ''
+  });
+
+  const load = () =>
+    loader()
+      .then((data) => setState({ data, error: '' }))
+      .catch((e) =>
+        setState({
+          data: null,
+          error: getApiErrorMessage(e)
+        })
+      );
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  return [state, load];
+}
+
 export function AdminDashboard() { const [state] = useAdminList(adminService.dashboard); if (state.error) return <PageLayout><ErrorState message={state.error} /></PageLayout>; if (!state.data) return <LoadingState />; const d = state.data; return <PageLayout><PageHeader eyebrow="Platform administration" title="Driver Hub overview" description="Monitor the marketplace and moderate platform activity." /><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5"><StatCard label="Candidates" value={d.total_candidates} /><StatCard label="Employers" value={d.total_employers} accent="orange" /><StatCard label="Jobs" value={d.total_jobs} /><StatCard label="Applications" value={d.total_applications} accent="orange" /><StatCard label="Pending jobs" value={d.pending_jobs} /></div><Card className="mt-8 p-6"><h2 className="font-bold">Moderation queue</h2><p className="mt-2 text-sm text-slate-500">Use the management sections to review users, jobs, and applications.</p></Card></PageLayout>; }
 
 export function AdminCandidates() { const [state, load] = useAdminList(adminService.candidates); const toggle = async (id, active) => { try { await adminService.updateCandidateActive(id, !active); load(); } catch (e) { alert(getApiErrorMessage(e)); } }; if (state.error) return <PageLayout><ErrorState message={state.error} /></PageLayout>; if (!state.data) return <LoadingState />; return <PageLayout><PageHeader eyebrow="Administration" title="Candidate management" description="Control account availability without exposing private credentials." />{!state.data.results?.length ? <EmptyState title="No candidates" /> : <DataTable><thead><tr className="text-left text-xs uppercase tracking-wide text-slate-500"><th className="px-5 py-4">Name</th><th className="px-5 py-4">Email</th><th className="px-5 py-4">Location</th><th className="px-5 py-4">Account</th><th className="px-5 py-4">Action</th></tr></thead><tbody className="divide-y divide-slate-100 text-sm">{state.data.results.map((row) => <tr key={row.id}><td className="px-5 py-4 font-semibold">{row.user.name}</td><td className="px-5 py-4">{row.user.email}</td><td className="px-5 py-4">{row.location || '—'}</td><td className="px-5 py-4"><StatusBadge status={row.user.is_active ? 'approved' : 'blocked'} /></td><td className="px-5 py-4"><Button variant={row.user.is_active ? 'danger' : 'secondary'} onClick={() => toggle(row.id, row.user.is_active)}>{row.user.is_active ? 'Block' : 'Unblock'}</Button></td></tr>)}</tbody></DataTable>}</PageLayout>; }
