@@ -1,0 +1,5 @@
+import { Link } from 'react-router-dom';
+import { Card, StatusBadge } from '../ui/Primitives';
+
+export function StatCard({ label, value, accent = 'blue' }) { return <Card className="p-5"><p className="text-sm text-slate-500">{label}</p><p className={`mt-2 text-3xl font-bold ${accent === 'orange' ? 'text-orange-600' : 'text-blue-700'}`}>{value}</p></Card>; }
+export function JobCard({ job }) { return <Card className="flex h-full flex-col p-5"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{job.company_name}</p><h3 className="mt-1 text-lg font-bold text-slate-900">{job.title}</h3></div>{job.status && <StatusBadge status={job.status} />}</div><div className="mt-4 grid grid-cols-2 gap-2 text-sm text-slate-500"><span>📍 {job.location}</span><span>🚚 {job.driver_category}</span><span>₹{job.salary_min}–₹{job.salary_max}</span><span>{job.experience_required} yrs exp.</span></div><Link to={`/jobs/${job.id}`} className="mt-auto pt-5 text-sm font-semibold text-blue-700 hover:text-blue-800">View details →</Link></Card>; }

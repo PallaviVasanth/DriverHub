@@ -1,0 +1,3 @@
+export function LoadingState({ label = 'Loading' }) { return <div className="p-8 text-center text-sm text-slate-500" role="status">{label}…</div>; }
+export function ErrorState({ message = 'Something went wrong.' }) { return <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">{message}</div>; }
+export function EmptyState({ title = 'Nothing here yet', description = '' }) { return <div className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center"><h2 className="font-semibold text-slate-800">{title}</h2>{description && <p className="mt-2 text-sm text-slate-500">{description}</p>}</div>; }
