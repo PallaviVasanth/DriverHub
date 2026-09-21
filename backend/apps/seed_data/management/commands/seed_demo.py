@@ -42,6 +42,7 @@ class Command(BaseCommand):
             candidates.append(profile)
 
         employer_specs = [
+            ("Demo Fleet", "employer.demo@driverhub.test", "Bengaluru"),
             ("ABC Logistics", "abc.logistics@driverhub.test", "Bengaluru"),
             ("Metro Transport Solutions", "metro.transport@driverhub.test", "Hyderabad"),
             ("SwiftMove Logistics", "swiftmove@driverhub.test", "Chennai"),
@@ -100,7 +101,7 @@ class Command(BaseCommand):
         for index, employer in enumerate(employers):
             Notification.objects.create(user=employer.user, title="Demo application received", message=f"A fictional candidate applied to one of your demo roles (#{index + 1}).", type="demo_application")
 
-        self.stdout.write(self.style.SUCCESS("Created fictional demo dataset: 6 candidates, 5 employers, 15 jobs, 24 applications, and notifications."))
+        self.stdout.write(self.style.SUCCESS("Created fictional demo dataset: 6 candidates, 6 employers, 15 jobs, 24 applications, and notifications."))
         self.stdout.write("Candidate: candidate.demo@driverhub.test / DemoCandidate123!")
         self.stdout.write("Employer: employer.demo@driverhub.test / DemoEmployer123! (use the employer.demo account for API verification)")
         self.stdout.write("Admin: admin.demo@driverhub.test / DemoAdmin123!")

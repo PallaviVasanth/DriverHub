@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
@@ -23,6 +24,11 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [{"BACKEND": "django.template.backends.django.DjangoTemplates", "DIRS": [], "APP_DIRS": True, "OPTIONS": {"context_processors": ["django.template.context_processors.request", "django.contrib.auth.context_processors.auth", "django.contrib.messages.context_processors.messages"]}}]
 WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {"default": {"ENGINE": "django.db.backends.postgresql", "NAME": os.getenv("POSTGRES_DB", "driverhub"), "USER": os.getenv("POSTGRES_USER", "driverhub"), "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""), "HOST": os.getenv("POSTGRES_HOST", "127.0.0.1"), "PORT": os.getenv("POSTGRES_PORT", "5432")}}
+if os.getenv("DATABASE_URL"):
+    parsed = urlparse(os.environ["DATABASE_URL"])
+    if parsed.scheme not in {"postgres", "postgresql"}:
+        raise ValueError("DATABASE_URL must use postgres:// or postgresql://")
+    DATABASES = {"default": {"ENGINE": "django.db.backends.postgresql", "NAME": parsed.path.lstrip("/"), "USER": parsed.username or "", "PASSWORD": parsed.password or "", "HOST": parsed.hostname or "127.0.0.1", "PORT": parsed.port or 5432}}
 if os.getenv("DJANGO_USE_SQLITE", "False").lower() == "true":
     DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
 AUTH_USER_MODEL = "accounts.User"
