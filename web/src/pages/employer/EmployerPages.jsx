@@ -845,6 +845,8 @@ export function EmployerCandidates() {
   });
 
   const [data, setData] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const [loadingCandidate, setLoadingCandidate] = useState(false);
   const [error, setError] = useState('');
 
   const search = async () => {
@@ -852,25 +854,38 @@ export function EmployerCandidates() {
       setError('');
 
       const params = Object.fromEntries(
-        Object.entries(filters).filter(
-          ([, value]) => value
-        )
+        Object.entries(filters).filter(([, value]) => value)
       );
 
-      const result =
-        await employerService.searchCandidates(
-          params
-        );
-
+      const result = await employerService.searchCandidates(params);
       setData(result);
+      setSelected(null);
     } catch (e) {
       setError(getApiErrorMessage(e));
+    }
+  };
+
+  const viewCandidate = async (candidate) => {
+    try {
+      setError('');
+      setLoadingCandidate(true);
+
+      const candidateId = candidate.id || candidate.user_id;
+      const result = await employerService.getCandidate(candidateId);
+      setSelected(result);
+    } catch (e) {
+      setError(getApiErrorMessage(e));
+    } finally {
+      setLoadingCandidate(false);
     }
   };
 
   useEffect(() => {
     search();
   }, []);
+
+  const resumeUrl = selected?.resume || selected?.resume_url;
+  const photoUrl = selected?.profile_photo || selected?.profile_photo_url;
 
   return (
     <PageLayout>
@@ -882,15 +897,11 @@ export function EmployerCandidates() {
 
       <Card className="mb-8 p-5">
         <div className="grid gap-4 md:grid-cols-3">
-
           <Field
             label="Search"
             value={filters.search}
             onChange={(e) =>
-              setFilters({
-                ...filters,
-                search: e.target.value,
-              })
+              setFilters({ ...filters, search: e.target.value })
             }
           />
 
@@ -898,10 +909,7 @@ export function EmployerCandidates() {
             label="Location"
             value={filters.location}
             onChange={(e) =>
-              setFilters({
-                ...filters,
-                location: e.target.value,
-              })
+              setFilters({ ...filters, location: e.target.value })
             }
           />
 
@@ -909,10 +917,7 @@ export function EmployerCandidates() {
             label="Skills"
             value={filters.skills}
             onChange={(e) =>
-              setFilters({
-                ...filters,
-                skills: e.target.value,
-              })
+              setFilters({ ...filters, skills: e.target.value })
             }
           />
 
@@ -921,10 +926,7 @@ export function EmployerCandidates() {
             type="number"
             value={filters.experience}
             onChange={(e) =>
-              setFilters({
-                ...filters,
-                experience: e.target.value,
-              })
+              setFilters({ ...filters, experience: e.target.value })
             }
           />
 
@@ -934,24 +936,23 @@ export function EmployerCandidates() {
             onChange={(e) =>
               setFilters({
                 ...filters,
-                license_category:
-                  e.target.value,
+                license_category: e.target.value,
               })
             }
           />
-
         </div>
 
-        <Button
-          className="mt-4"
-          onClick={search}
-        >
+        <Button className="mt-4" onClick={search}>
           Search
         </Button>
       </Card>
 
-      {error && (
-        <ErrorState message={error} />
+      {error && <ErrorState message={error} />}
+
+      {loadingCandidate && (
+        <div className="mb-6">
+          <LoadingState />
+        </div>
       )}
 
       {!data ? (
@@ -959,33 +960,164 @@ export function EmployerCandidates() {
       ) : data.results?.length ? (
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {data.results.map((candidate) => (
-            <Card
-              key={candidate.id}
-              className="p-5"
-            >
-              <h2 className="font-bold">
-                {candidate.name}
-              </h2>
+            <Card key={candidate.id} className="p-5">
+              <div className="flex items-start gap-4">
+                {(candidate.profile_photo || candidate.profile_photo_url) ? (
+                  <img
+                    src={candidate.profile_photo || candidate.profile_photo_url}
+                    alt={candidate.name || 'Candidate'}
+                    className="h-14 w-14 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-blue-700">
+                    {(candidate.name || 'C').charAt(0).toUpperCase()}
+                  </div>
+                )}
 
-              <p className="mt-1 text-sm text-slate-500">
-                {candidate.location} ·{' '}
-                {candidate.experience_years} years
-              </p>
+                <div className="min-w-0">
+                  <h2 className="font-bold text-slate-900">
+                    {candidate.name}
+                  </h2>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    {candidate.location || 'Location not listed'} ·{' '}
+                    {candidate.experience_years ?? 0} years
+                  </p>
+                </div>
+              </div>
 
               <p className="mt-4 text-sm text-slate-600">
-                {candidate.skills ||
-                  'No skills listed'}
+                {candidate.skills || 'No skills listed'}
               </p>
 
               <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-blue-700">
-                {candidate.license_category ||
-                  'Category not listed'}
+                {candidate.license_category || 'Category not listed'}
               </p>
+
+              <div className="mt-5 flex flex-wrap gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => viewCandidate(candidate)}
+                >
+                  View Profile
+                </Button>
+
+                {(candidate.resume || candidate.resume_url) && (
+                  <a
+                    href={candidate.resume || candidate.resume_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-800"
+                  >
+                    View Resume
+                  </a>
+                )}
+              </div>
             </Card>
           ))}
         </div>
       ) : (
         <EmptyState title="No candidates match" />
+      )}
+
+      {selected && (
+        <Card className="mt-8 p-6">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-center gap-4">
+              {photoUrl ? (
+                <img
+                  src={photoUrl}
+                  alt={selected.name || 'Candidate'}
+                  className="h-20 w-20 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 text-2xl font-bold text-blue-700">
+                  {(selected.name || 'C').charAt(0).toUpperCase()}
+                </div>
+              )}
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">
+                  Candidate profile
+                </p>
+                <h2 className="mt-1 text-2xl font-bold text-slate-900">
+                  {selected.name || 'Candidate'}
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  {selected.location || 'Location not available'}
+                </p>
+              </div>
+            </div>
+
+            <Button
+              variant="secondary"
+              onClick={() => setSelected(null)}
+            >
+              Close
+            </Button>
+          </div>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <Card className="p-4">
+              <h3 className="font-semibold">Candidate information</h3>
+              <div className="mt-3 space-y-2 text-sm text-slate-600">
+                <p><strong>Name:</strong> {selected.name || 'Not available'}</p>
+                <p><strong>Location:</strong> {selected.location || 'Not available'}</p>
+                <p><strong>Experience:</strong> {selected.experience_years ?? 0} years</p>
+                <p><strong>License category:</strong> {selected.license_category || 'Not available'}</p>
+                <p><strong>License number:</strong> {selected.license_number || 'Not available'}</p>
+                {selected.email && <p><strong>Email:</strong> {selected.email}</p>}
+                {selected.phone && <p><strong>Phone:</strong> {selected.phone}</p>}
+              </div>
+            </Card>
+
+            <Card className="p-4">
+              <h3 className="font-semibold">Professional details</h3>
+              <div className="mt-3 space-y-3 text-sm text-slate-600">
+                <div>
+                  <strong>Skills</strong>
+                  <p className="mt-1">{selected.skills || 'No skills listed'}</p>
+                </div>
+                <div>
+                  <strong>Bio</strong>
+                  <p className="mt-1">{selected.bio || 'No bio provided'}</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          <Card className="mt-4 p-4">
+            <h3 className="font-semibold">Documents</h3>
+
+            <div className="mt-4 flex flex-wrap gap-3">
+              {resumeUrl ? (
+                <a
+                  href={resumeUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-800"
+                >
+                  View Resume
+                </a>
+              ) : (
+                <span className="text-sm text-slate-500">
+                  Resume not uploaded
+                </span>
+              )}
+
+              {photoUrl && (
+                <a
+                  href={photoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                >
+                  View Profile Photo
+                </a>
+              )}
+            </div>
+          </Card>
+        </Card>
       )}
     </PageLayout>
   );
