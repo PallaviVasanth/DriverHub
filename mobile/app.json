@@ -1,0 +1,3 @@
+{
+  "expo": {"name": "Driver Hub", "slug": "driver-hub", "version": "0.1.0", "orientation": "portrait", "scheme": "driverhub", "plugins": ["expo-router", "expo-secure-store"], "android": {"package": "com.driverhub.app"}}
+}

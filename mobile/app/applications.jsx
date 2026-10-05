@@ -1,0 +1,6 @@
+import { useEffect, useState } from 'react';
+import { SafeAreaView, ScrollView, Text } from 'react-native';
+import { Card, Empty, ErrorText, Loading, styles } from '../src/components/UI';
+import { candidate } from '../src/services/domain';
+import { apiError } from '../src/services/api';
+export default function Applications() { const [data, setData] = useState(null); const [error, setError] = useState(''); useEffect(() => { candidate.applications().then(setData).catch((e) => setError(apiError(e))); }, []); if (!data && !error) return <Loading />; return <SafeAreaView style={styles.screen}><ScrollView contentContainerStyle={styles.content}><Text style={styles.title}>My applications</Text><Text style={styles.subtitle}>Track your applications and status updates.</Text>{error && <ErrorText message={error} />}{!data?.results?.length ? <Empty title="No applications yet" body="Apply to a job to see it here." /> : data.results.map((item) => <Card key={item.id}><Text style={styles.heading}>{item.job_title}</Text><Text style={styles.subtitle}>{item.company_name} · {item.location}</Text><Text style={{ marginTop: 10, color: item.status === 'rejected' ? '#dc2626' : '#2563eb', fontWeight: '800' }}>{item.status.toUpperCase()}</Text></Card>)}</ScrollView></SafeAreaView>; }
